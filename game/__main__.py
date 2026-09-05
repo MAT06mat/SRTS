@@ -1,3 +1,4 @@
+from pathlib import Path
 import arcade
 
 from constants import SCREEN_HEIGHT, SCREEN_TITLE, SCREEN_WIDTH

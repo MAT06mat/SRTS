@@ -1,5 +1,5 @@
 import arcade
-from .game_view import GameView
+from views.game_view import GameView
 
 
 class MenuView(arcade.View):
