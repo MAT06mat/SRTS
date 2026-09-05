@@ -8,7 +8,7 @@ from enum import Enum
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 SCREEN_TITLE = "Simple RTS"
-TILE_SCALING = 1.0
+TILE_SCALING = 2.0
 TILE_SIZE = 16
 
 # Key mappings
