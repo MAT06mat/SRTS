@@ -1,9 +1,3 @@
-"""
-Python Arcade Community RPG
-
-An open-source RPG
-"""
-
 import arcade
 
 from constants import SCREEN_HEIGHT, SCREEN_TITLE, SCREEN_WIDTH
