@@ -1,12 +1,14 @@
 import noise
 import numpy as np
 
+from .load import load_biome_config
+
 
 class TerrainGenerator:
 
-    def __init__(self, shape: tuple[int, int], biome_config: dict) -> None:
+    def __init__(self, shape: tuple[int, int], biome_name: str) -> None:
         self.shape = shape
-        self.biome = biome_config
+        self.biome = load_biome_config(biome_name)
 
     def generate(self) -> np.ndarray:
         scale: float = self.biome["scale"]
