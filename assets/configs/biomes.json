@@ -8,8 +8,21 @@
             "water": -0.1,
             "sand": -0.05,
             "grass": 0.2,
-            "snow": 0.5,
-            "stone": 999
+            "stone": 0.3,
+            "snow": 999
+        },
+        "layers": {
+            "land": [
+                "sand",
+                "grass"
+            ],
+            "mountain": [
+                "stone",
+                "snow"
+            ],
+            "sea": [
+                "water"
+            ]
         }
     }
 }

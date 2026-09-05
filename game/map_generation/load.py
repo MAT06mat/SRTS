@@ -9,7 +9,8 @@ def load_biome_config(name: str) -> dict:
     """
     with open("assets/configs/biomes.json", "r") as f:
         biomes = json.load(f)
-    b = biomes.get(name)
-    if b is None:
+    biome = biomes.get(name)
+    biome["name"] = name
+    if biome is None:
         raise ValueError(f"Biome '{name}' not found in biomes.json")
-    return b
+    return biome

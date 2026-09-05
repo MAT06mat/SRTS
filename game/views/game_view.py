@@ -2,28 +2,50 @@ import arcade
 
 from sprites.tile_sprite import TileSprite
 from map_generation import TerrainGenerator
+from constants import *
 
 
 class GameView(arcade.View):
     def __init__(self, window: arcade.Window | None = None) -> None:
         super().__init__(window)
-        self.tiles = arcade.SpriteList()
+        self.land_tiles = arcade.SpriteList()
+        self.mountain_tiles = arcade.SpriteList()
+        self.sea_tiles = arcade.SpriteList()
 
     def setup(self):
         self.window.background_color = arcade.csscolor.GRAY
         self.window.default_camera.use()
 
-        grid = TerrainGenerator((20, 20), "plains").generate()
+        print("Start generation")
+        generator = TerrainGenerator(
+            (SCREEN_HEIGHT // TILE_SIZE, SCREEN_WIDTH // TILE_SIZE), "plains"
+        )
+        grid = generator.generate()
+        biome = generator.biome
+        layers = biome["layers"]
 
         for y in range(len(grid)):
             for x in range(len(grid[y])):
-                new_tile = TileSprite(grid[y, x], [x, y])
-                self.tiles.append(new_tile)
+                type = Tile(grid[y, x]).name.lower()
+                new_tile = TileSprite(type, [x, y])
+                if type in layers["land"]:
+                    self.land_tiles.append(new_tile)
+                elif type in layers["mountain"]:
+                    self.mountain_tiles.append(new_tile)
+                elif type in layers["sea"]:
+                    self.sea_tiles.append(new_tile)
+                else:
+                    raise Exception(
+                        f"Tile {type} is not in the layers of the {biome["name"]}"
+                    )
+        print("End generation")
 
     def on_draw(self):
         """Draw this view"""
         self.clear()
-        self.tiles.draw()
+        self.land_tiles.draw()
+        self.mountain_tiles.draw()
+        self.sea_tiles.draw()
         arcade.draw_text(
             "Coins game !",
             self.window.width / 2,
