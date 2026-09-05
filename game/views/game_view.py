@@ -12,6 +12,8 @@ class GameView(arcade.View):
         self.mountain_tiles = arcade.SpriteList()
         self.sea_tiles = arcade.SpriteList()
 
+        self.entity_sprites = arcade.SpriteList()
+
     def setup(self):
         self.window.background_color = arcade.csscolor.GRAY
         self.window.default_camera.use()
@@ -46,14 +48,6 @@ class GameView(arcade.View):
         self.land_tiles.draw()
         self.mountain_tiles.draw()
         self.sea_tiles.draw()
-        arcade.draw_text(
-            "Coins game !",
-            self.window.width / 2,
-            self.window.height / 2,
-            arcade.color.WHITE,
-            font_size=50,
-            anchor_x="center",
-        )
 
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         pass
