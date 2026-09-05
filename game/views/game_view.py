@@ -1,6 +1,7 @@
 import arcade
 
 from sprites.tile_sprite import TileSprite
+from map_generation import TerrainGenerator
 
 
 class GameView(arcade.View):
@@ -12,11 +13,11 @@ class GameView(arcade.View):
         self.window.background_color = arcade.csscolor.GRAY
         self.window.default_camera.use()
 
-        grid = [[0, 0, 1, 2, 3], [0, 4, 2, 1, 1], [0, 1, 2, 1, 3], [1, 1, 2, 3, 0]]
+        grid = TerrainGenerator((20, 20), "plains").generate()
 
         for y in range(len(grid)):
             for x in range(len(grid[y])):
-                new_tile = TileSprite(grid[y][x], [x, y])
+                new_tile = TileSprite(grid[y, x], [x, y])
                 self.tiles.append(new_tile)
 
     def on_draw(self):
