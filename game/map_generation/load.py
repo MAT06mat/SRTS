@@ -1,7 +1,5 @@
 import json
 
-from constants import Tile
-
 
 def load_biome_config(name: str) -> dict:
     """Loads a biome configuration from its name.
