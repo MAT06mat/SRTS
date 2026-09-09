@@ -16,6 +16,9 @@ KEY_UP = [arcade.key.UP, arcade.key.W]
 KEY_DOWN = [arcade.key.DOWN, arcade.key.S]
 KEY_LEFT = [arcade.key.LEFT, arcade.key.A]
 KEY_RIGHT = [arcade.key.RIGHT, arcade.key.D]
+RIGHT_CLICK = [4]
+LEFT_CLICK = [1]
+MOUSE_CLICK = [2]
 
 CAMERA_WIDTH = 512
 CAMERA_HEIGHT = 288
