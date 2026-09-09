@@ -6,8 +6,6 @@ from sprites.entity_sprite import EntitySprite
 from map_generation import TerrainGenerator
 from constants import *
 
-MAP_SIZE = [max(SCREEN_HEIGHT, SCREEN_WIDTH) // TILE_SIZE] * 2
-
 
 def get_rect_from_pos(p1: list[int], p2: list[int], cam_p: list[int], mini=False):
     left = min(p1[0], p2[0]) + cam_p[0]
@@ -41,6 +39,7 @@ class GameView(arcade.View):
         self.minimap_sprite_list = None
         self.minimap_texture = None
         self.minimap_sprite = None
+        self.minimap_drag = False
 
     def setup(self):
         self.window.background_color = arcade.csscolor.GRAY
@@ -49,7 +48,7 @@ class GameView(arcade.View):
         self.camera = arcade.Camera2D()
         self.camera_gui = arcade.Camera2D()
 
-        generator = TerrainGenerator(MAP_SIZE, "plains")
+        generator = TerrainGenerator(MAP_GRID, "plains")
         grid = generator.generate()
         biome = generator.biome
         layers = biome["layers"]
@@ -69,20 +68,20 @@ class GameView(arcade.View):
                         f"Tile {type} is not in the layers of the {biome['name']}"
                     )
 
-        self.minimap_texture = arcade.Texture.create_empty("MiniMap", (256, 256))
+        self.minimap_texture = arcade.Texture.create_empty(
+            "MiniMap", (MINIMAP_WIDTH, MINIMAP_WIDTH)
+        )
         self.minimap_sprite = arcade.Sprite(
             self.minimap_texture,
-            center_x=128,
-            center_y=self.height - 128,
+            center_x=MINIMAP_WIDTH / 2,
+            center_y=self.height - MINIMAP_WIDTH / 2,
         )
 
         self.minimap_sprite_list = arcade.SpriteList()
         self.minimap_sprite_list.append(self.minimap_sprite)
 
     def update_minimap(self):
-        map_width = TileSprite.REAL_TILE_SIZE * MAP_SIZE[0]
-        map_height = TileSprite.REAL_TILE_SIZE * MAP_SIZE[1]
-        proj = (0, map_width, 0, map_height)
+        proj = (0, MAP_SIZE[0], 0, MAP_SIZE[1])
         atlas = self.minimap_sprite_list.atlas
         cam_bl = self.camera.bottom_left
         cam_tr = self.camera.top_right
@@ -93,7 +92,7 @@ class GameView(arcade.View):
             self.mountain_tiles.draw()
             self.sea_tiles.draw()
             rect = arcade.LRBT(cam_bl[0], cam_tr[0], cam_bl[1], cam_tr[1])
-            arcade.draw_rect_outline(rect, (0, 255, 0), 10)
+            arcade.draw_rect_outline(rect, (0, 255, 0), MINIMAP_ZOOM)
 
     def on_draw(self):
         """Draw this view"""
@@ -122,40 +121,31 @@ class GameView(arcade.View):
             if key in KEY_UP:
                 self.camera.position = (
                     self.camera.position.x,
-                    self.camera.position.y + TileSprite.REAL_TILE_SIZE,
+                    self.camera.position.y + TILE_SIZE,
                 )
             elif key in KEY_DOWN:
                 self.camera.position = (
                     self.camera.position.x,
-                    self.camera.position.y - TileSprite.REAL_TILE_SIZE,
+                    self.camera.position.y - TILE_SIZE,
                 )
             elif key in KEY_LEFT:
                 self.camera.position = (
-                    self.camera.position.x - TileSprite.REAL_TILE_SIZE,
+                    self.camera.position.x - TILE_SIZE,
                     self.camera.position.y,
                 )
             elif key in KEY_RIGHT:
                 self.camera.position = (
-                    self.camera.position.x + TileSprite.REAL_TILE_SIZE,
+                    self.camera.position.x + TILE_SIZE,
                     self.camera.position.y,
                 )
         return super().on_update(delta_time)
 
     def on_mouse_press(self, x, y, button, modifiers):
         if button in LEFT_CLICK and self.minimap_sprite.rect.point_in_rect((x, y)):
-            px = (
-                (x - self.minimap_sprite.rect[0])
-                / 256
-                * MAP_SIZE[0]
-                * TileSprite.REAL_TILE_SIZE
-            )
-            py = (
-                (y - self.minimap_sprite.rect[2])
-                / 256
-                * MAP_SIZE[1]
-                * TileSprite.REAL_TILE_SIZE
-            )
+            px = (x - self.minimap_sprite.rect[0]) * MINIMAP_ZOOM
+            py = (y - self.minimap_sprite.rect[2]) * MINIMAP_ZOOM
             self.camera.position = (px, py)
+            self.minimap_drag = True
             return super().on_mouse_press(x, y, button, modifiers)
         if len(self.entity_sprites) == 0:
             self.entity_sprites.append(EntitySprite(192, 304))
@@ -168,10 +158,17 @@ class GameView(arcade.View):
         return super().on_mouse_press(x, y, button, modifiers)
 
     def on_mouse_drag(self, x, y, dx, dy, _buttons, _modifiers):
+        if self.minimap_drag and _buttons in LEFT_CLICK:
+            px = (x - self.minimap_sprite.rect[0]) * MINIMAP_ZOOM
+            py = (y - self.minimap_sprite.rect[2]) * MINIMAP_ZOOM
+            self.camera.position = (px, py)
+            return
         self.current_pos = (x, y)
         return super().on_mouse_drag(x, y, dx, dy, _buttons, _modifiers)
 
     def on_mouse_release(self, x, y, button, modifiers):
+        self.minimap_drag = False
+
         # Entity selection
         if self.press_pos:
             rect = get_rect_from_pos(
@@ -202,7 +199,5 @@ class GameView(arcade.View):
         Handle the user grabbing the edge and resizing the window.
         """
         super().on_resize(width, height)
-        self.camera.match_window(aspect=SCREEN_WIDTH / SCREEN_HEIGHT, projection=False)
-        self.camera_gui.match_window(
-            aspect=SCREEN_WIDTH / SCREEN_HEIGHT, projection=False
-        )
+        self.camera.match_window(aspect=SCREEN_RATIO, projection=False)
+        self.camera_gui.match_window(aspect=SCREEN_RATIO, projection=False)
